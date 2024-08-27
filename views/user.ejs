@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 30px 50px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 320px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 30px;
+            color: #444;
+        }
+
+        label {
+            font-size: 18px;
+            margin-right: 15px;
+            color: #555;
+        }
+
+        input[type="radio"] {
+            margin-right: 10px;
+            accent-color: #ff6f61;
+        }
+
+        button {
+            margin-top: 30px;
+            padding: 12px 25px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #ff6f61;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #e85a50;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Select the type of user you are:</h1>
+        <label for="user1">Buyer</label>
+        <input type="radio" name="User" id="user1">
+        <label for="user2">Admin</label>
+        <input type="radio" name="User" id="user2">
+        <label for="user3">Seller</label>
+        <input type="radio" name="User" id="user3">
+        <br>
+        <button type="submit" id="submit">Submit</button>
+    </div>
+
+    <script>
+        document.getElementById('submit').addEventListener('click', function(event) {
+            let userType;
+            if (document.getElementById('user1').checked) {
+                userType = 'Buyer';
+            } 
+            else if (document.getElementById('user2').checked) {
+                userType = 'Admin';
+            } 
+            else {
+                userType = 'Seller';
+            }
+            window.location.href = `/login?userType=${userType}`;
+        });
+    </script>
+</body>
+</html>

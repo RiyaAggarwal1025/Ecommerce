@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <style>
+        #header {
+            background-color: aliceblue;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        #header button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #header button a {
+            color: white;
+            text-decoration: none;
+        }
+
+        #header button a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+      <div><h1>Welcome <%= name %></h1></div>  
+        <div>
+        <button><a href="/Signup">Singup</a></button>
+        <button id="logout"><a href="">Logout</a></button>
+        <button id="add-product"><a href="">Add Product</a></button></div>
+    </div>
+<script>
+    document.getElementById('add-product').addEventListener('click', function(event) {
+        event.preventDefault(); 
+        let token = '<%= token %>';
+       
+        fetch(`/addProduct/${token}`, {
+            method: 'GET'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+            }
+            else {
+                window.location = `http://localhost:3000/add/${token}`;
+            }
+        })
+        .catch(error => console.error('Error sending request: ', error));
+    });
+    document.getElementById('logout').addEventListener('click',function(event) {
+        event.preventDefault(); 
+        let token = '<%= token %>';
+        fetch(`/logout/${token}` , {
+            method: 'Get'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+            }
+            else {
+                window.location = `http://localhost:3000/login`;
+            }
+        })
+        .catch(error => console.error('Error sending request: ', error));
+    })
+</script>
+</body>
+</html>

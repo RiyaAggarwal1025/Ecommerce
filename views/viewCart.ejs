@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart Products</title>
+    <style>
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .product img {
+            width: 100%;
+            height: 100%; 
+            object-fit: cover; 
+        }
+        button.delete {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        button.delete:hover {
+            background-color: #c0392b;
+        }
+
+        button.viewDetails {
+            background-color: #3498db;
+            color: white;
+        }
+
+        button.viewDetails:hover {
+            background-color: #2980b9;
+        }
+
+        #head {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-left: 85%;
+        }
+
+        #head a {
+            color: white;
+            text-decoration: none;
+        }
+
+        #head a:hover {
+            text-decoration: underline;
+        }
+
+        #products,
+        #productsContainer {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .product {
+            border: 1px solid #ddd;
+            padding: 10px;
+            width: 200px;
+        }
+
+        .product img {
+            width: 100%;
+            height: auto;
+        }
+
+        #load-more {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        #cart {
+            display: block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-left: auto;
+        }
+
+        #product-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 20px;
+            width: 300px;
+            max-width: 80%;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+        }
+
+        #popup-content img {
+            width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        #popup-content h3 {
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+
+        #popup-content p {
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        #close-popup {
+            display: block;
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('partials/header', { name: name ,token:tokens}) %>
+        <h1>Cart</h1>
+        <button id="head">Back to Products</button>
+        <div id="productsContainer">
+            <% products.forEach(product=> { %>
+                <div class="product">
+                    <h3>
+                        <%= product.productName %>
+                    </h3>
+                    <img src="<%= product.image %>" alt="<%= product.productName %>">
+                    <p>Price : <%= product.price %>
+                    </p>
+                    Quantity: <span class="quantity">0</span> 
+                    <button class="add" data-id="<%= product._id %>">+</button>
+                    <button class="less" data-id="<%= product._id %>">-</button><br><br>
+                    <button class="delete" data-id="<%= product._id %>">Delete</button>
+                    <button class="viewDetails" data-id="<%= product._id %>">View details</button>
+                </div>
+                <% }) %>
+        </div>
+        <div id="product-popup">
+            <div id="popup-content"></div>
+            <button id="close-popup">Close</button>
+        </div>
+        <%- include('partials/footer') %>
+
+            <script>
+                const Email = '<%= Email %>'
+                document.getElementById('productsContainer').addEventListener('click', function (event) {
+                    if (event.target.classList.contains('viewDetails')) {
+                        event.preventDefault();
+                        const productId = event.target.getAttribute('data-id');
+                        fetch(`/product/${productId}`)
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok ' + response.statusText);
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                const popupContent = document.getElementById('popup-content');
+                                popupContent.innerHTML = `
+                            <h3>${data.productName}</h3>
+                            <img src="${data.image}" alt="${data.productName}">
+                            <p>Ram: ${data.Ram}</p>
+                            <p>SSD: ${data.SSD}</p>
+                            <p>Price: ${data.price}</p>
+                        `;
+                                document.getElementById('product-popup').style.display = 'block';
+                            })
+                            .catch(error => console.error('Error fetching product details:', error));
+                    }
+                });
+
+                document.getElementById('productsContainer').addEventListener('click', function (event) {
+                    if (event.target.classList.contains('add') || event.target.classList.contains('less')) {
+                        let productDiv = event.target.parentElement;
+                        while (productDiv && !productDiv.classList.contains('product')) {
+                            productDiv = productDiv.parentElement;
+                        }
+                        if (productDiv) {  
+                            const quantity = productDiv.querySelector('.quantity');
+                            const productId = event.target.getAttribute('data-id');
+                            let currentQuantity = parseInt(quantity.textContent);
+                            if (event.target.classList.contains('add')) {
+                                fetch(`/check-stock/${productId}`)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (currentQuantity < data.available) {
+                                            quantity.textContent = currentQuantity + 1;
+                                        } else {
+                                            alert('Quantity not in stock');
+                                        }
+                                    })
+                                    .catch(error => console.error('Error:', error));
+                            } 
+                            else if (event.target.classList.contains('less')) {
+                                if (currentQuantity > 0) {
+                                    quantity.textContent = currentQuantity - 1;
+                                }
+                            }
+                        }
+                    }
+                });
+
+
+                document.getElementById('productsContainer').addEventListener('click', function (event) {
+                    event.preventDefault();
+                    if (event.target.classList.contains('delete')) {
+                        const productId = event.target.getAttribute('data-id');
+
+                        fetch(`/delete/${Email}/${productId}`, {
+                            method: 'GET'
+                        })
+                            .then(response => {
+                                if (response.ok) {
+                                    console.log('Product deleted successfully');
+                                    let productElement = event.target.parentNode;
+                                    if (productElement && productElement.classList.contains('product')) {
+                                        productElement.style.display = 'none';
+                                    }
+                                }
+                                else {
+                                    console.error('Failed to delete product from cart');
+                                }
+                            })
+                            .catch(error => console.error('Error deleting product from cart:', error));
+                    }
+                });
+
+
+                document.getElementById('close-popup').addEventListener('click', function () {
+                    document.getElementById('product-popup').style.display = 'none';
+                });
+
+                document.getElementById('head').addEventListener('click' , function(event) {
+                    let token = '<%= tokens %>';
+                    console.log(token);
+                    location.assign(`/?token=${token}`);
+                })
+            </script>
+</body>
+
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forget Password</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 40px 60px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 30px;
+            color: #444;
+        }
+
+        label {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #555;
+            text-align: left;
+        }
+
+        input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #f5576c;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #d94d5e;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Forget Password</h1>
+        <form id="resetP">
+            <label for="EmailId">Enter your email ID</label> 
+            <input type="email" id="EmailId" required>
+            <input type="hidden" id="userType" value="<%= userType %>">
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <script>
+       document.getElementById("resetP").addEventListener("submit", function(event) {
+            event.preventDefault(); 
+            let EmailId = document.getElementById("EmailId").value;
+            let userType = document.getElementById("userType").value;
+            
+            let request = new XMLHttpRequest();
+            request.open("POST", "/resetP");
+            request.setRequestHeader("Content-Type", "application/json");
+            request.addEventListener("load", function() {
+                if (request.status === 200) {
+                    let response = request.responseText;
+                    alert(response);
+                } 
+                else {
+                    console.error("Error:", request.statusText);
+                }
+            });
+            
+            request.send(JSON.stringify({EmailId, userType}));
+        });
+    </script>
+</body>
+</html>
